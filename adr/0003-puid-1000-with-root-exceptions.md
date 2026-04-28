@@ -90,4 +90,3 @@ Known permanent exceptions as of the decision date:
 
 - `../docs/new-container-checklist.md` — enforces this rule during onboarding
 - `../docs/permissions-strategy.md` — full permissions strategy document
-- `../docs/permissions-strategy.md` — quick-reference card

@@ -88,5 +88,5 @@ These conventions are enforced via the new-container checklist
 
 ## References
 
-- [docs/new-container-checklist.md](../docs/new-container-checklist.md) — checklist that enforces this decision
-- [ADR-0004: Hybrid Monitoring Stack](0004-hybrid-monitoring-stack.md) — why monitoring lives in an isolated network
+- `../docs/new-container-checklist.md` — checklist that enforces this decision
+- `adr/0004-hybrid-monitoring-stack.md` — why monitoring lives in an isolated network
