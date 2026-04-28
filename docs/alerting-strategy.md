@@ -147,7 +147,7 @@ Not CRITICAL as DNS still responds, but needs prompt investigation.
 
 ## 📝 Alertmanager Routing Strategy
 
-**File:** `/opt/docker/monitoring/alertmanager/config/alertmanager.yml`
+**File:** `<repo-root>/monitoring/alertmanager/config/alertmanager.yml`
 
 ### **Routing Logic:**
 
@@ -308,10 +308,10 @@ Reduces notification spam by batching related alerts.
 
 | Component | Config File | Purpose |
 |-----------|-------------|---------|
-| Prometheus | `/opt/docker/monitoring/prometheus/config/prometheus.yml` | Scrape targets, rules |
-| Alertmanager | `/opt/docker/monitoring/alertmanager/config/alertmanager.yml` | Routing, receivers |
+| Prometheus | `<repo-root>/monitoring/prometheus/config/prometheus.yml` | Scrape targets, rules |
+| Alertmanager | `<repo-root>/monitoring/alertmanager/config/alertmanager.yml` | Routing, receivers |
 | n8n Workflow | n8n web UI | AI processing workflow |
-| Uptime-Kuma | SQLite DB (`/opt/docker/uptime-kuma/data/kuma.db`) | Monitors, notifications |
+| Uptime-Kuma | SQLite DB (`<data-dir>/uptime-kuma/data/kuma.db`) | Monitors, notifications |
 
 ---
 

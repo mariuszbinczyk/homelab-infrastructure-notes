@@ -77,13 +77,13 @@ Apply ACL to all mount points to ensure consistent permissions:
 
 ```bash
 # Jellyfin media directory
-sudo setfacl -R -m u:1000:rwx,d:u:1000:rwx /mnt/jellyfin
+sudo setfacl -R -m u:1000:rwx,d:u:1000:rwx <media-dir>
 
 # Docker volumes and configs
-sudo setfacl -R -m u:1000:rwx,d:u:1000:rwx /srv/docker
+sudo setfacl -R -m u:1000:rwx,d:u:1000:rwx <data-dir>
 
 # Backup directory
-sudo setfacl -R -m u:1000:rwx,d:u:1000:rwx /mnt/backup/homelab
+sudo setfacl -R -m u:1000:rwx,d:u:1000:rwx <backup-dir>
 ```
 
 **Explanation:**
@@ -98,12 +98,12 @@ Set group sticky bit to preserve group ownership:
 
 ```bash
 # Apply to all service directories
-sudo find /srv/docker -type d -exec chmod g+s {} \;
+sudo find <data-dir> -type d -exec chmod g+s {} \;
 
 # Or individually:
-sudo chmod g+s /srv/docker/jellyfin
-sudo chmod g+s /srv/docker/grafana
-sudo chmod g+s /srv/docker/prometheus
+sudo chmod g+s <data-dir>/jellyfin
+sudo chmod g+s <data-dir>/grafana
+sudo chmod g+s <data-dir>/prometheus
 # ... etc
 ```
 
@@ -289,10 +289,10 @@ services:
 - [ ] Document current root-running containers
 
 ### Phase 2: Filesystem Permissions
-- [ ] Apply ACL to `/mnt/jellyfin`
-- [ ] Apply ACL to `/srv/docker`
-- [ ] Apply ACL to `/mnt/backup/homelab`
-- [ ] Set sticky bit on all `/srv/docker/*` directories
+- [ ] Apply ACL to `<media-dir>`
+- [ ] Apply ACL to `<data-dir>`
+- [ ] Apply ACL to `<backup-dir>`
+- [ ] Set sticky bit on all `<data-dir>/*` directories
 - [ ] Verify permissions: `getfacl <path>`
 
 ### Phase 3: Container Migration
@@ -326,17 +326,17 @@ For each service:
 **Solutions:**
 1. Check if directories are owned by UID 1000:
    ```bash
-   ls -la /srv/docker/<service>/
+   ls -la <data-dir>/<service>/
    ```
 
 2. Fix ownership:
    ```bash
-   sudo chown -R 1000:1000 /srv/docker/<service>/
+   sudo chown -R 1000:1000 <data-dir>/<service>/
    ```
 
 3. Check ACL:
    ```bash
-   getfacl /srv/docker/<service>/
+   getfacl <data-dir>/<service>/
    ```
 
 4. Verify container actually supports PUID/PGID (linuxserver.io images do)

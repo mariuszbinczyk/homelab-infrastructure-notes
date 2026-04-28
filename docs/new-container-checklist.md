@@ -69,7 +69,7 @@ last_reviewed: 2026-03-05
 - [ ] **`homelab-export.sh`** → statyczne liczby tierów w Section 13
 
 ### Uptime Kuma
-- [ ] Restart: `cd /opt/docker/uptime-kuma && docker compose up -d`
+- [ ] Restart: `docker compose -f <repo-root>/uptime-kuma/docker-compose.yml up -d`
 - [ ] Dodaj `extra_hosts` do `uptime-kuma/docker-compose.yml` jeśli nowy domain
 - [ ] Uptime Kuma UI → Add Monitor (typ: HTTPS, URL: https://name.<homelab-domain>, 60s)
 

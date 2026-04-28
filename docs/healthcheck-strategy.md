@@ -243,7 +243,7 @@ Current Exception:
 
 ## Prometheus Alert Coverage
 
-### From `/opt/docker/monitoring/prometheus/config/alert.rules`
+### From `<repo-root>/monitoring/prometheus/config/alert.rules`
 
 **Critical alerts configured (ensure healthcheck gaps covered):**
 
@@ -282,7 +282,7 @@ Current Exception:
 
 **Action:**
 ```yaml
-# /opt/docker/monitoring/exporters/docker-compose.yml
+# <repo-root>/monitoring/exporters/docker-compose.yml
 services:
   blackbox-exporter:
     # healthcheck: # DISABLED - monitored by Prometheus
@@ -343,12 +343,12 @@ services:
 
 **Current Gap:** Isolated services (Home Assistant, Node-RED) have NO Prometheus monitoring
 
-**Solution:** Uptime Kuma already monitors external *.lan domains
+**Solution:** Uptime Kuma already monitors external *.<homelab-domain> domains
 
 **Verify Coverage:**
 ```bash
 # Check Uptime Kuma monitors
-curl -s http://<homelab-dashboard>.lan/api/status-page/homelab/monitors
+curl -s http://uptime.<homelab-domain>/api/status-page/homelab/monitors
 ```
 
 **Expected Monitors:**
@@ -393,7 +393,7 @@ curl -s http://<homelab-dashboard>.lan/api/status-page/homelab/monitors
 **Implementation:**
 1. Prometheus monitors services in homelab-monitoring network
 2. Docker healthcheck monitors isolated services
-3. Uptime Kuma monitors external *.lan domain availability
+3. Uptime Kuma monitors external *.<homelab-domain> domain availability
 
 **Pros:**
 - ✅ Maintains network segmentation (security)
@@ -431,7 +431,7 @@ curl -s http://<homelab-dashboard>.lan/api/status-page/homelab/monitors
     - In isolated network OR no metrics endpoint = Docker healthcheck
 [ ] Add Prometheus scrape job OR configure Docker healthcheck
 [ ] Add alert rules if Prometheus-monitored
-[ ] Add Uptime Kuma monitor if external *.lan domain
+[ ] Add Uptime Kuma monitor if external *.<homelab-domain> domain
 [ ] Document decision in docker-compose.yml comments
 ```
 

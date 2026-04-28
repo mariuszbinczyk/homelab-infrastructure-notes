@@ -47,8 +47,8 @@ Key conventions:
   Access pattern: `journalctl -u homelab-<task> -n 50`.
 - The `scripts/systemd/` directory is the **source of truth**; the system
   copy under `/etc/systemd/system/` is a deployment artefact.
-- New tasks must be added to the schedule reference doc
-  (`dosystemd timer documentation: `man systemd.timer`
+- New tasks must be added to the schedule reference document
+  (a Markdown file listing all timers and their purpose, kept in the repository alongside the unit files).
 
 The full active schedule as of the decision date:
 
@@ -99,6 +99,5 @@ The full active schedule as of the decision date:
 
 ## References
 
-- `systemd timer documentation: `man systemd.timer`
-- `../../scripts/systemd/` — unit files (source of truth, git-tracked)
 - systemd timer documentation: `man systemd.timer`
+- systemd service documentation: `man systemd.service`
