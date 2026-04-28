@@ -83,12 +83,52 @@ Allowed exceptions (do NOT flag these):
 
 ### Link consistency check
 
-```bash
-# Find markdown links pointing to non-existent local files
-grep -rn "\](\.\./" --include="*.md" | sed "s/.*](\(\.\.\/[^)]*\)).*/\1/" | sort -u | while read p; do
-  [ -f "$p" ] || echo "BROKEN: $p"
-done
+Use the Python script below — it resolves every relative link **relative to the file that contains it**, not from the repository root. Links in `adr/` files that reference `docs/` files are resolved correctly.
+
+```python
+#!/usr/bin/env python3
+"""Check local markdown links relative to their source file.
+Run from the repository root: python3 check_links.py
+Skips fenced code blocks so example paths inside ``` do not trigger false positives.
+"""
+import os, re, sys
+
+REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+LINK_RE = re.compile(r'\[(?:[^\]]*)\]\(((?:\.\.?/)[^)#\s]+)\)')
+TICK_RE = re.compile(r'`((?:\.\.?/)[^`\s]+)`')
+
+errors = []
+for dirpath, dirnames, filenames in os.walk(REPO_ROOT):
+    dirnames[:] = [d for d in dirnames if d != '.git']
+    for filename in filenames:
+        if not filename.endswith('.md'):
+            continue
+        filepath = os.path.join(dirpath, filename)
+        in_fence = False
+        with open(filepath, encoding='utf-8') as f:
+            for lineno, line in enumerate(f, 1):
+                if line.startswith('```'):
+                    in_fence = not in_fence
+                    continue
+                if in_fence:
+                    continue
+                for pattern in (LINK_RE, TICK_RE):
+                    for m in pattern.finditer(line):
+                        ref = m.group(1)
+                        resolved = os.path.normpath(
+                            os.path.join(os.path.dirname(filepath), ref)
+                        )
+                        if not os.path.exists(resolved):
+                            src = os.path.relpath(filepath, REPO_ROOT)
+                            errors.append(f"{src}:{lineno}: BROKEN → {ref}")
+
+if errors:
+    print('\n'.join(errors))
+    sys.exit(1)
+print(f"All local links OK ({REPO_ROOT})")
 ```
+
+> **Note on the template:** `adr/0000-template.md` uses placeholder text like `` `NNNN-superseding-adr.md` `` (backtick, not a link) intentionally — the link checker will not flag it.
 
 ### Frontmatter check
 

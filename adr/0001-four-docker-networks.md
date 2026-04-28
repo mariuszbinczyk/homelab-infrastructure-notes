@@ -54,7 +54,7 @@ and exposed through Traefik **must** carry the label
 the wrong interface.
 
 These conventions are enforced via the new-container checklist
-(`docs/operations/NEW_CONTAINER_CHECKLIST.md`) and audited periodically.
+(`../docs/new-container-checklist.md`) and audited periodically.
 
 ---
 

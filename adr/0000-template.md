@@ -9,7 +9,7 @@ last_reviewed: YYYY-MM-DD
 # ADR-NNNN: <Short Title>
 
 **Date:** YYYY-MM-DD
-**Status:** Draft | Proposed | Accepted | Deprecated | Superseded by [ADR-XXXX](XXXX-title.md)
+**Status:** Draft | Proposed | Accepted | Deprecated | Superseded by `NNNN-superseding-adr.md`
 
 ---
 
