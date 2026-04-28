@@ -88,5 +88,4 @@ Known permanent exceptions as of the decision date:
 
 ## References
 
-- `../docs/new-container-checklist.md` — enforces this rule during onboarding
-- `../docs/permissions-strategy.md` — full permissions strategy document
+- `adr/0004-hybrid-monitoring-stack.md` — related: network isolation also depends on correct user policy

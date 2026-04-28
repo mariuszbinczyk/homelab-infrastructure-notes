@@ -53,8 +53,8 @@ and exposed through Traefik **must** carry the label
 `traefik.docker.network=traefik-public`. Without it, Traefik may route through
 the wrong interface.
 
-These conventions are enforced via the new-container checklist
-(`../docs/new-container-checklist.md`) and audited periodically.
+These conventions are enforced via a per-service onboarding checklist
+and audited periodically.
 
 ---
 
@@ -88,5 +88,4 @@ These conventions are enforced via the new-container checklist
 
 ## References
 
-- `../docs/new-container-checklist.md` — checklist that enforces this decision
 - `adr/0004-hybrid-monitoring-stack.md` — why monitoring lives in an isolated network

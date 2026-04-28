@@ -107,6 +107,4 @@ tuning.
 
 ## References
 
-- `../docs/alerting-strategy.md` — detailed explanation of both alerting layers
-- `../docs/healthcheck-strategy.md` — health check conventions per container type
 - `adr/0001-four-docker-networks.md` — why monitoring lives in an isolated network
