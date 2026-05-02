@@ -3,7 +3,7 @@ title: "ADR-0002: systemd Timers Instead of Root Crontab for Scheduled Maintenan
 status: accepted
 type: decision
 owner: homelab
-last_reviewed: 2026-04-28
+last_reviewed: 2026-05-02
 ---
 
 # ADR-0002: systemd Timers Instead of Root Crontab for Scheduled Maintenance
@@ -47,24 +47,55 @@ Key conventions:
   Access pattern: `journalctl -u homelab-<task> -n 50`.
 - The `scripts/systemd/` directory is the **source of truth**; the system
   copy under `/etc/systemd/system/` is a deployment artefact.
-- New tasks must be added to the schedule reference document
-  (a Markdown file listing all timers and their purpose, kept in the repository alongside the unit files).
+- New tasks must be added to the schedule reference doc
+  (`docs/operations/SCHEDULES.md).
 
-The full active schedule as of the decision date:
+The full active schedule (updated 2026-05-02):
 
 | Timer | Frequency | Purpose |
 |-------|-----------|---------|
-| `homelab-diagnostics` | daily 02:00 | Health checks, Docker status, disk |
-| `homelab-backup` | daily 02:30 | Full backup to NAS |
-| `homelab-disk-cleanup` | daily 03:30 | Docker image and build-cache pruning |
-| `homelab-cve-scan` | Sat 23:00 | Trivy CVE data collection |
-| `homelab-audit` | Sun 02:00 | Consistency audit → Alertmanager |
-| `homelab-cve-advisor` | Sun 18:00 | AI CVE analysis → notification |
-| `homelab-backup-validation` | Mon 03:00 | Backup integrity verification |
-| `homelab-update-tier3` | Mon 05:30 | Tier 3 container auto-update |
-| `homelab-update-tier2` | Tue 03:30 | Tier 2 container auto-update |
-| `homelab-nas-recovery` | every 10 min | NAS mount health + auto-remount |
+| `homelab-diagnostics` | daily 01:47 | Health checks, Docker status, disk |
+| `homelab-backup` | daily 02:23 | Full backup to NAS |
+| `homelab-disk-cleanup` | daily 03:19 | Docker image and build-cache pruning |
+| `homelab-ollama-pull` | daily 03:53 | Nightly AI model updates |
+| `homelab-cve-scan` | Sat 22:43 | Trivy CVE data collection |
+| `homelab-audit` | Sun 01:23 | Consistency audit → Alertmanager |
+| `homelab-cve-advisor` | Sun 18:11 | AI CVE analysis → notification |
+| `homelab-backup-validation` | Mon 03:47 | Backup integrity verification |
+| `homelab-update-tier3` | Mon 05:17 | Tier 3 container auto-update |
+| `homelab-update-tier2` | Tue 03:41 | Tier 2 container auto-update |
+| `homelab-nas-recovery` | every 10 min (boot-relative) | NAS mount health + auto-remount |
 | `homelab-ollama-warmup` | @reboot | Pre-load AI models after boot |
+
+---
+
+## Amendment — Timer Staggering (2026-05-02)
+
+All `OnCalendar=` timers were updated to use non-round-minute times and two
+additional directives:
+
+**`RandomizedDelaySec`** — systemd picks a uniform random offset in `[0, N]`
+before firing the unit. This prevents thundering-herd behaviour after a reboot
+(when all Persistent timers with elapsed schedules would otherwise fire
+simultaneously) and distributes I/O jitter across the nightly window.
+
+| Job class | RandomizedDelaySec | Rationale |
+|-----------|-------------------|-----------|
+| Chained (diagnostics→backup→disk-cleanup) | 60 s | small jitter, chain has 50+ min buffers |
+| Independent daily (ollama-pull) | 120 s | no downstream dependency |
+| Weekly (cve-scan, updates, cve-advisor) | 120 s | no downstream dependency |
+| nas-recovery | 30 s | fires every 10 min, low stakes |
+
+**`AccuracySec=1s`** — overrides the default 1-minute coalescing window for
+I/O-heavy jobs (backup, disk-cleanup, cve-scan, cve-advisor, ollama-pull,
+backup-validation). Without this, systemd may delay a timer up to 60 seconds
+to batch it with other expiring timers, which can push chained jobs past their
+safety buffers.
+
+**`homelab-nas-recovery`** was changed from clock-aligned `OnCalendar=*:0/10`
+to `OnBootSec=3min` + `OnUnitActiveSec=10min`. This decouples it from the wall
+clock so multiple reboots do not converge the recovery timer on the same
+10-minute mark system-wide.
 
 ---
 
@@ -80,6 +111,8 @@ The full active schedule as of the decision date:
   guards, removing the need for defensive checks inside scripts.
 - `systemctl list-timers 'homelab-*'` gives an immediate view of all upcoming
   and last-run homelab tasks.
+- `RandomizedDelaySec` eliminates post-reboot thundering-herd and spreads
+  nightly I/O without requiring per-script sleep hacks.
 
 ### Negative / Trade-offs
 
@@ -88,6 +121,8 @@ The full active schedule as of the decision date:
 - Unit file syntax is more verbose than a crontab line.
 - Existing scripts must be invoked from the `ExecStart=` line rather than
   being edited to understand timers.
+- `RandomizedDelaySec` means the actual fire time is non-deterministic within
+  a small window; log timestamps will vary slightly each day.
 
 ### Neutral
 
@@ -99,5 +134,6 @@ The full active schedule as of the decision date:
 
 ## References
 
-- systemd timer documentation: `man systemd.timer`
-- systemd service documentation: `man systemd.service`
+- `docs/operations/SCHEDULES.md` — current schedule reference
+- `scripts/systemd/` — unit files (source of truth, git-tracked)
+- `man systemd.timer` — systemd timer documentation
